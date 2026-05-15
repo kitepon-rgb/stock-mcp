@@ -1,0 +1,18 @@
+[Unit]
+Description=stock-mcp MCP server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kite
+WorkingDirectory=/home/kite/stock-mcp
+EnvironmentFile=/home/kite/stock-mcp/.env
+ExecStart=/home/kite/stock-mcp/.venv/bin/stock-mcp
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

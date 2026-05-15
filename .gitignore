@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+dist/
+build/
+*.egg-info/
+.claude/
+.docs-venv/
+.ruff_cache/
+.vscode/
