@@ -1,0 +1,22 @@
+# stock-mcp -- runs the MCP server as a container on the home server.
+# Replaces the former systemd unit (scripts/stock-mcp.service).
+services:
+  stock-mcp:
+    build: .
+    image: stock-mcp:latest
+    container_name: stock-mcp
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      # LAN-reachable on the host IP, same pattern as the other containers.
+      # Caddy reverse-proxies stockmcp.kitepon.dynv6.net here unchanged.
+      - "192.168.1.2:39200:39200"
+    volumes:
+      # OAuth client/token SQLite store -- persists across rebuilds.
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 39200), 3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

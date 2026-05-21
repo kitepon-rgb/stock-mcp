@@ -1,0 +1,17 @@
+.git
+.venv
+__pycache__
+*.pyc
+*.egg-info
+dist
+build
+.ruff_cache
+.env
+data
+docs
+RAG
+tools
+scripts
+.vscode
+.claude
+.docs-venv

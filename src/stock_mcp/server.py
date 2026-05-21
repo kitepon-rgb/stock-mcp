@@ -21,6 +21,7 @@ from . import orders as ord_safety
 from . import risk as rk
 from .config import load as load_config
 from .sources import alpha_vantage as av
+from .sources import finnhub
 from .sources import kabu
 from .sources import marketspeed as ms2
 from .sources import stooq
@@ -121,6 +122,7 @@ also stamps interval/period into the image title.
 ## Sources (lower-level adapters, also exposed)
 - Yahoo Finance (yfinance): global coverage, free, no key required.
 - Alpha Vantage: free key required (ALPHA_VANTAGE_API_KEY); rich indicators.
+- Finnhub: real-time US stock quotes, free key required (FINNHUB_API_KEY); finnhub_quote.
 - Stooq: free, good for JP stocks (symbol like '7203.jp') and indices ('^n225','^spx').
 - kabu.com (kabu Station API): JP only, requires kabu Station running and KABU_BASE_URL/KABU_API_PASSWORD; read-only board/positions/orders.
 - analyze_ticker: pulls history from Yahoo or Stooq and computes RSI / MACD / Bollinger / SMA / EMA / ATR / ADX locally in one shot.
@@ -212,6 +214,18 @@ def av_indicator(
         series_type=series_type,
         extra=extra,
     )
+
+
+# ---------- Finnhub ----------
+
+@mcp.tool(description=(
+    "Finnhub: real-time quote for a US-listed symbol — current price, change, "
+    "percent change, day high/low, open, previous close, and quote timestamp. "
+    "Genuinely real-time on the free tier, unlike Yahoo's ~15min delayed feed. "
+    "Requires FINNHUB_API_KEY env on the server."
+))
+def finnhub_quote(symbol: str) -> dict[str, Any]:
+    return finnhub.quote(symbol)
 
 
 # ---------- Stooq ----------

@@ -24,6 +24,7 @@ exposed for direct access.
 | Strategy / risk (spec T4) | `calc_scenario_analysis`, `calc_position_sizing`, `calc_risk_reward`, `calc_dow_theory_phase`, `detect_chart_patterns`, `calc_portfolio_correlation`, `calc_value_at_risk`, `simulate_trade_outcome` |
 | Yahoo Finance (raw) | `yahoo_quote`, `yahoo_history`, `yahoo_info`, `yahoo_news`, `yahoo_actions`, `yahoo_financials` |
 | Alpha Vantage | `av_quote`, `av_intraday`, `av_daily`, `av_indicator` |
+| Finnhub | `finnhub_quote` (real-time US stock quotes) |
 | Stooq | `stooq_history` |
 | kabu.com (read-only) | `kabu_board`, `kabu_symbol_info`, `kabu_positions`, `kabu_orders` |
 | Local composite | `analyze_ticker` (history + RSI / MACD / BB / SMA / EMA / ATR / ADX) |
@@ -46,28 +47,32 @@ src/stock_mcp/
   sources/
     yahoo.py           # yfinance adapter (quote / history / news / fundamentals / earnings / holders / options / dividends / sector)
     alpha_vantage.py   # Alpha Vantage REST adapter
+    finnhub.py         # Finnhub REST adapter (real-time US stock quotes)
     stooq.py           # Stooq CSV adapter
     kabu.py            # kabu Station REST adapter (read-only)
 scripts/
-  deploy.sh            # rsync source + bootstrap venv on remote
-  stock-mcp.service    # systemd unit
+  deploy.sh            # rsync source + docker compose up on remote
+  stock-mcp.service    # legacy systemd unit (superseded by Docker)
 docs/
   REGISTER.md          # how to register with Claude
+Dockerfile             # container image (python:3.12-slim)
+compose.yml            # container service: port 39200, data/ volume
 .env.example
 pyproject.toml
 ```
 
 ## Deploy
 
+Runs as a Docker container on the home server (`Dockerfile` + `compose.yml`).
+
 ```bash
 REMOTE=kite@192.168.1.2 bash scripts/deploy.sh
-ssh kite@192.168.1.2 'sudo cp ~/stock-mcp/scripts/stock-mcp.service /etc/systemd/system/ \
-  && sudo systemctl daemon-reload \
-  && sudo systemctl enable --now stock-mcp'
 ```
 
-Edit `~/stock-mcp/.env` on the server to set `ALPHA_VANTAGE_API_KEY` and (if used)
-`KABU_BASE_URL` / `KABU_API_PASSWORD`, then `sudo systemctl restart stock-mcp`.
+`deploy.sh` rsyncs the source and runs `docker compose up -d --build` on the
+server. Edit `~/stock-mcp/.env` there to set API keys (`ALPHA_VANTAGE_API_KEY`,
+`FINNHUB_API_KEY`, and if used `KABU_BASE_URL` / `KABU_API_PASSWORD`), then
+`cd ~/stock-mcp && docker compose up -d` to apply.
 
 ## Register with Claude
 
@@ -84,6 +89,7 @@ See `docs/REGISTER.md` for scope details and verification commands.
 | `STOCK_MCP_HOST` | `0.0.0.0` | Bind address (LAN-reachable by default) |
 | `STOCK_MCP_PORT` | `39200` | TCP port |
 | `ALPHA_VANTAGE_API_KEY` | _(unset)_ | Required for `av_*` tools |
+| `FINNHUB_API_KEY` | _(unset)_ | Required for `finnhub_quote` (real-time US quotes) |
 | `CHART_IMG_API_KEY` | _(unset)_ | Required for `generate_chart_image` (local fallback: `generate_chart_local`) |
 | `KABU_BASE_URL` | _(unset)_ | e.g. `http://127.0.0.1:18080` |
 | `KABU_API_PASSWORD` | _(unset)_ | kabu Station API password |

@@ -8,6 +8,7 @@ class Config:
     host: str
     port: int
     alpha_vantage_key: str | None
+    finnhub_key: str | None
     kabu_base_url: str | None
     kabu_api_password: str | None
     kabu_production: bool
@@ -27,6 +28,7 @@ def load() -> Config:
         host=os.environ.get("STOCK_MCP_HOST", "0.0.0.0"),
         port=int(os.environ.get("STOCK_MCP_PORT", "39200")),
         alpha_vantage_key=os.environ.get("ALPHA_VANTAGE_API_KEY") or None,
+        finnhub_key=os.environ.get("FINNHUB_API_KEY") or None,
         kabu_base_url=os.environ.get("KABU_BASE_URL") or None,
         kabu_api_password=os.environ.get("KABU_API_PASSWORD") or None,
         kabu_production=os.environ.get("KABU_PRODUCTION", "false").lower() == "true",

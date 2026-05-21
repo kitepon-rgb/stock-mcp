@@ -53,9 +53,10 @@
 - 発注ツールの追加時はテストハーネスを最小でも 1 つ書く (dry-run でリクエスト JSON が安全装置を通る/弾かれるの両方)
 
 ## デプロイ
-- ソースはこの WSL リポジトリで編集 → `bash scripts/deploy.sh` で `kite@192.168.1.2:~/stock-mcp/` に rsync
-- systemd unit: `scripts/stock-mcp.service` → `/etc/systemd/system/stock-mcp.service`
-- 起動: `sudo systemctl restart stock-mcp` / ログ: `journalctl -u stock-mcp -f`
+- ソースはこの WSL リポジトリで編集 → `bash scripts/deploy.sh` で `kite@192.168.1.2:~/stock-mcp/` に rsync し、リモートで `docker compose up -d --build`
+- Docker コンテナとして稼働 (`Dockerfile` + `compose.yml`)。ポート 39200 を `192.168.1.2:39200` で公開、`data/` を OAuth SQLite 用にボリュームマウント
+- 操作: `cd ~/stock-mcp && docker compose restart` / ログ: `docker compose logs -f` / 状態: `docker compose ps`
+- 旧 systemd 方式 (`scripts/stock-mcp.service`) から移行済み。.service ファイルは履歴として残置
 
 ## Claude 登録
 - ユーザースコープで HTTP 接続:
@@ -65,15 +66,15 @@
 - 接続確認: `claude mcp list` -> `stock-mcp Connected`
 
 ## トラブル時のチェック順
-1. `ssh kite@192.168.1.2 'systemctl status stock-mcp'`
-2. `ssh kite@192.168.1.2 'journalctl -u stock-mcp -n 100 --no-pager'`
+1. `ssh kite@192.168.1.2 'cd ~/stock-mcp && docker compose ps'`
+2. `ssh kite@192.168.1.2 'cd ~/stock-mcp && docker compose logs --tail 100'`
 3. ポート: `nc -z 192.168.1.2 39200 && echo ok`
 4. ヘルス: `curl -sS http://192.168.1.2:39200/mcp -H 'Accept: text/event-stream'` -> MCP initialize 応答
 
 ## 既知の落とし穴
-- Yahoo Finance は予告なくレスポンス構造を変える → 失敗時は `journalctl` で raw 例外を確認
+- Yahoo Finance は予告なくレスポンス構造を変える → 失敗時は `docker compose logs` で raw 例外を確認
 - yfinance `fast_info` は **camelCase キー** (`lastPrice`, `dayHigh`, `marketCap` 等)。snake_case で取りに行くと全 `None` になる (1.3.x で変わった)
-- yfinance は短時間に多リクエストすると Yahoo 側 burst 判定でしばらく全 endpoint が 30s タイムアウトする → 一度 `sudo systemctl restart stock-mcp` でセッション/IP-状態をリセットすると復活
+- yfinance は短時間に多リクエストすると Yahoo 側 burst 判定でしばらく全 endpoint が 30s タイムアウトする → 一度 `docker compose restart` でセッション/IP-状態をリセットすると復活
 - Alpha Vantage の free tier は厳しい。`Note` フィールドで rate limit 通知が返ると `RuntimeError`
 - Stooq は **API キー必須** になった (匿名 CSV エンドポイント廃止)。`STOOQ_API_KEY` を env にセット (<https://stooq.com/q/d/?s=aapl.us&get_apikey> で取得)
 - Stooq は休日や直近日に空セルを返す → `None` で受けてあるが indicator 計算では NaN になる
