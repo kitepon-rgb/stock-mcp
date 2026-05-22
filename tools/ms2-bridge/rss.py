@@ -250,7 +250,6 @@ class RssClient:
             except Exception:
                 self._wb = None
                 self._labels_set = False
-        did_launch_excel = False
         if self.workbook_path and os.path.exists(self.workbook_path):
             # シェル経由で開く: COM直接起動だとRSSアドインが読み込まれないため
             import subprocess
@@ -264,7 +263,6 @@ class RssClient:
             if not already_open:
                 subprocess.Popen(["cmd", "/c", "start", "", self.workbook_path],
                                  shell=False)
-                did_launch_excel = True
                 for _ in range(30):
                     time.sleep(1)
                     try:
@@ -296,9 +294,7 @@ class RssClient:
         if not self._labels_set:
             self._setup_sheet_labels(self._wb.sheets[_SHEET_NAME])
             self._labels_set = True
-        # 既存 Excel への再アタッチでは発火させない。実際に subprocess で
-        # Excel を起こしたときだけツール有効化を 45 秒後にスケジュールする。
-        if did_launch_excel and self._on_workbook_open:
+        if self._on_workbook_open:
             self._on_workbook_open()
         return self._wb
 

@@ -102,6 +102,18 @@ pip install -r requirements.txt
 
 ---
 
+## System tray
+
+While the bridge runs, an icon in the Windows notification area (system
+tray) indicates it is alive. Right-click it → **Quit** to stop the bridge
+and its HTTP server cleanly.
+
+If `pystray` / `Pillow` cannot load, the bridge prints `tray unavailable`
+and runs headless in the console instead — the HTTP API is identical
+either way.
+
+---
+
 ## Auto-connect behaviour
 
 The bridge manages the MS2 ribbon state automatically:
