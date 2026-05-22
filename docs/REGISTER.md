@@ -76,7 +76,7 @@ server has to be publicly reachable over HTTPS with OAuth 2.1.
 4. **Restart**:
 
    ```bash
-   ssh kite@192.168.1.2 'sudo systemctl restart stock-mcp'
+   ssh kite@192.168.1.2 'cd ~/stock-mcp && docker compose up -d'
    ```
 
 5. **Smoke test** the OAuth discovery endpoint:
