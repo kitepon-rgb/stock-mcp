@@ -87,45 +87,32 @@ def _build_mcp() -> FastMCP:
 _INSTRUCTIONS = """
 # stock-mcp
 
-Read-only stock market data and technical-analysis tools.
-NO order-execution tools are exposed.
+Stock market data, local technical-analysis math, and Marketspeed2 (Rakuten
+Securities) order execution. A deliberately lean tool set -- more tool code
+exists in the server but is disabled via _DISABLED_TOOLS to keep context small.
 
-## Spec-named tools (preferred entrypoints)
-These follow docs/stock-mcp-spec.md naming. Use these by default.
+## Market data
+- yahoo_quote / yahoo_history -- Yahoo Finance quote and OHLCV history (global,
+  free, no key). yahoo_history records always carry `interval` and `period` so
+  the time axis cannot be misread.
+- finnhub_quote -- real-time US stock quote; genuinely real-time, unlike
+  Yahoo's ~15min-delayed feed (needs FINNHUB_API_KEY).
 
-Tier 1 (core data + indicators + fundamentals):
-- get_stock_price / get_stock_history / get_ticker_info / search_ticker
-- calc_rsi / calc_macd / calc_moving_average / calc_bollinger_bands / calc_atr / calc_stochastic
+## Technical analysis (local math)
+- calc_rsi / calc_moving_average / calc_bollinger_bands / calc_atr
 - detect_support_resistance
-- get_fundamentals / get_analyst_targets / get_financial_statements
-
-Tier 2 (news, events, charts, fibonacci, sector / ETF):
-- get_stock_news / get_earnings_calendar / get_institutional_holders / get_insider_transactions
-- generate_chart_image (chart-img.com, needs CHART_IMG_API_KEY)
-- generate_chart_local (mplfinance, no key, base64 PNG with explicit interval/period label)
 - calc_fibonacci_retracement / calc_fibonacci_extension
-- get_sector_performance / get_related_tickers / get_etf_holdings / get_leveraged_etf_info
+- calc_volume_surge_realtime -- intraday volume-surge detection
+- calc_position_sizing / calc_risk_reward -- position sizing and R:R math
 
-Tier 3 (options, short, dividends):
-- get_options_chain (returns expirations list when no expiration given) / calc_option_greeks (Black-Scholes)
-- get_short_interest / get_dividend_history
-
-Tier 4 (strategy / risk math):
-- calc_scenario_analysis / calc_position_sizing / calc_risk_reward
-- calc_dow_theory_phase / detect_chart_patterns
-- calc_portfolio_correlation / calc_value_at_risk / simulate_trade_outcome
-
-get_stock_history records ALWAYS carry `interval` and `period` fields so the
-time axis cannot be misread. Prefer this over chart images. generate_chart_local
-also stamps interval/period into the image title.
-
-## Sources (lower-level adapters, also exposed)
-- Yahoo Finance (yfinance): global coverage, free, no key required.
-- Alpha Vantage: free key required (ALPHA_VANTAGE_API_KEY); rich indicators.
-- Finnhub: real-time US stock quotes, free key required (FINNHUB_API_KEY); finnhub_quote.
-- Stooq: free, good for JP stocks (symbol like '7203.jp') and indices ('^n225','^spx').
-- kabu.com (kabu Station API): JP only, requires kabu Station running and KABU_BASE_URL/KABU_API_PASSWORD; read-only board/positions/orders.
-- analyze_ticker: pulls history from Yahoo or Stooq and computes RSI / MACD / Bollinger / SMA / EMA / ATR / ADX locally in one shot.
+## Marketspeed2 (Rakuten Securities, via the Windows bridge)
+- Read-only: ms2_quote, ms2_board, ms2_margin, ms2_positions, ms2_orders,
+  ms2_trades.
+- Order execution -- two-step preview -> confirm, guarded by HMAC short-lived
+  tokens and per-order quantity/notional limits. Always preview first:
+    ms2_place_order_preview  -> ms2_place_order_confirm(confirm_token)
+    ms2_modify_order_preview -> ms2_modify_order_confirm(confirm_token)
+    ms2_cancel_order_preview -> ms2_cancel_order_confirm(confirm_token)
 """
 
 

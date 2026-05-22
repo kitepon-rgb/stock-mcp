@@ -10,3 +10,4 @@ build/
 .docs-venv/
 .ruff_cache/
 .vscode/
+*:Zone.Identifier

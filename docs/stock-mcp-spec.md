@@ -438,40 +438,22 @@ matplotlib           # ローカルチャート生成（オプション）
 ## 6. デプロイ手順
 
 ```bash
-# 1. リポジトリ作成
-cd /home/clo/projects
-git clone https://github.com/Adity-star/mcp-yfinance-server.git stock-mcp
-cd stock-mcp
-# クオ君のリポジトリにフォーク or 新規作成
-git remote set-url origin git@github.com:kitepon-rgb/stock-mcp.git
+# 1. WSL リポジトリで編集 → 自宅サーバ (192.168.1.2) へ反映
+bash scripts/deploy.sh        # rsync + リモートで docker compose up -d --build
 
-# 2. 依存関係インストール
-uv sync
-uv add fastmcp yfinance pandas-ta httpx scipy mplfinance
+# 2. サーバ側は Docker コンテナとして稼働 (Dockerfile + compose.yml)
+#    ポート 39200 を 192.168.1.2:39200 で公開、data/ を OAuth SQLite 用に
+#    ボリュームマウント。操作: cd ~/stock-mcp && docker compose ps / logs -f
 
-# 3. HTTP/SSE 化（既存 stdio 実装を改造）
-# main.py を FastMCP HTTP transport に変更
+# 3. 環境変数は ~/stock-mcp/.env に設定 (.env.example 参照)
+#    ALPHA_VANTAGE_API_KEY / FINNHUB_API_KEY / KABU_* / MS2_* / MCP_OAUTH_* など
 
-# 4. 環境変数設定
-cat > .env <<EOF
-CHART_IMG_API_KEY=xxx
-FINNHUB_API_KEY=xxx
-OAUTH_CLIENT_SECRET=xxx
-EOF
+# 4. 公開: Caddy コンテナが stockmcp.kitepon.dynv6.net → 192.168.1.2:39200 を
+#    reverse_proxy (scripts/caddy-stockmcp.snippet)
 
-# 5. systemd service 作成
-sudo cp deploy/stock-mcp.service /etc/systemd/system/
-sudo systemctl enable stock-mcp
-sudo systemctl start stock-mcp
-
-# 6. Nginx リバースプロキシ設定
-sudo cp deploy/nginx-stock-mcp.conf /etc/nginx/sites-available/
-sudo ln -s /etc/nginx/sites-available/stock-mcp /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
-
-# 7. claude.ai に登録
-# Settings → Connectors → Add custom connector
-# URL: https://stock.kitepon.dynv6.net/mcp
+# 5. claude.ai / Claude Code に登録
+#    claude mcp add --transport http stock-mcp http://192.168.1.2:39200/mcp
+#    公開接続は https://stockmcp.kitepon.dynv6.net/mcp (OAuth)
 ```
 
 ---
