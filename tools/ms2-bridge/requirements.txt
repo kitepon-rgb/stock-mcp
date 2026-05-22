@@ -5,3 +5,5 @@ python-dotenv>=1.0
 xlwings>=0.31
 uiautomation>=2.0.29
 pywin32>=306
+pystray>=0.19
+Pillow>=10

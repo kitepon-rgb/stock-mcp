@@ -36,7 +36,6 @@ See README.md for Excel + RSS setup details.
 
 from __future__ import annotations
 
-import asyncio
 import os
 import secrets
 import sys
@@ -97,20 +96,31 @@ def _do_rss_connect() -> None:
         pass
 
 
-@app.on_event("startup")
-async def _startup_connect() -> None:
-    """ブリッジ起動 15 秒後に MS2 を自動接続する。"""
-    async def _delayed() -> None:
-        await asyncio.sleep(45)
-        await asyncio.get_event_loop().run_in_executor(None, _do_rss_connect)
-    asyncio.create_task(_delayed())
+_activation_lock = threading.Lock()
+_activation_in_flight = False
 
 
 def _on_workbook_opened() -> None:
-    threading.Thread(
-        target=lambda: (time.sleep(45), _do_rss_connect()),
-        daemon=True,
-    ).start()
+    """Excel を新規に起動した直後だけ呼ばれる。45 秒後に一度だけ MS2 を有効化する。
+
+    複数回呼ばれても in-flight フラグで二重発火を抑える。
+    """
+    global _activation_in_flight
+    with _activation_lock:
+        if _activation_in_flight:
+            return
+        _activation_in_flight = True
+
+    def _run() -> None:
+        global _activation_in_flight
+        try:
+            time.sleep(45)
+            _do_rss_connect()
+        finally:
+            with _activation_lock:
+                _activation_in_flight = False
+
+    threading.Thread(target=_run, daemon=True).start()
 
 
 def _get_rss() -> RssClient:
@@ -434,4 +444,22 @@ def _err(request, exc: HTTPException) -> JSONResponse:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("bridge:app", host=_HOST, port=_PORT, reload=False)
+    _server = uvicorn.Server(
+        uvicorn.Config("bridge:app", host=_HOST, port=_PORT, reload=False)
+    )
+
+    def _serve() -> None:
+        _server.run()
+
+    _server_thread = threading.Thread(target=_serve, daemon=True)
+    _server_thread.start()
+
+    def _shutdown_server() -> None:
+        _server.should_exit = True
+
+    try:
+        from tray import run_tray
+        run_tray(port=_PORT, workbook_path=_WORKBOOK, on_quit=_shutdown_server)
+    except Exception as exc:  # tray unavailable — fall back to headless
+        print(f"tray unavailable ({exc}); running headless.", file=sys.stderr)
+        _server_thread.join()
