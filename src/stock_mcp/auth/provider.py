@@ -30,7 +30,7 @@ from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 
 log = logging.getLogger(__name__)
 
-ACCESS_TOKEN_TTL_SECONDS = 3600              # 1 hour
+ACCESS_TOKEN_TTL_SECONDS = 24 * 3600         # 24 hours
 REFRESH_TOKEN_TTL_SECONDS = 30 * 24 * 3600   # 30 days
 AUTH_CODE_TTL_SECONDS = 600                  # 10 minutes
 CONSENT_TTL_SECONDS = 600                    # 10 minutes
