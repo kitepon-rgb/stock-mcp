@@ -37,6 +37,7 @@
 
 ## アーキテクチャ要点
 - `server.py` は FastMCP の `streamable-http` transport で起動
+- MCP に公開するツールは `server.py` の `_DISABLED_TOOLS` 集合で絞る。列挙した名前は `@mcp.tool` 登録をスキップしクライアントのコンテキストに届かない（関数自体は残り内部呼び出しは可能）。コンテキスト削減用
 - 各データ源は `sources/<name>.py` に純粋関数として隔離（`server.py` は薄いラッパ）
 - 設定は `config.py` の `load()` から env を読むだけ。永続化なし
 - kabu トークンはプロセス内 dict にキャッシュ（1 時間 TTL）

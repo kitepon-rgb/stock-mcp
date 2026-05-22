@@ -132,6 +132,46 @@ also stamps interval/period into the image title.
 mcp = _build_mcp()
 
 
+# --- Context-reduction denylist ----------------------------------------------
+# Tool names listed here are NOT registered with the MCP server, so their
+# schemas never reach the client's context. The Python functions below still
+# exist (and stay callable internally); only @mcp.tool registration is skipped.
+# Edit this set and redeploy to change what is exposed.
+_DISABLED_TOOLS = {
+    "av_daily", "av_indicator", "av_intraday", "av_quote",
+    "calc_dow_theory_phase", "calc_macd", "calc_option_greeks",
+    "calc_portfolio_correlation", "calc_scenario_analysis",
+    "calc_spread_compression", "calc_stochastic", "calc_value_at_risk",
+    "detect_chart_patterns", "generate_chart_image", "generate_chart_local",
+    "get_analyst_targets", "get_dividend_history", "get_earnings_calendar",
+    "get_etf_holdings", "get_financial_statements", "get_fundamentals",
+    "get_insider_transactions", "get_institutional_holders", "get_options_chain",
+    "get_related_tickers", "get_sector_performance", "get_short_interest",
+    "get_stock_history", "get_stock_news", "get_stock_price", "get_ticker_info",
+    "kabu_board", "kabu_orders", "kabu_positions", "kabu_symbol_info",
+    "search_ticker", "simulate_trade_outcome", "stooq_history",
+    "yahoo_actions", "yahoo_financials", "yahoo_info", "yahoo_news",
+    "analyze_ticker", "get_leveraged_etf_info",
+}
+
+_mcp_tool_decorator = mcp.tool
+
+
+def _tool(*args, **kwargs):
+    """mcp.tool wrapper: skip registration for names in _DISABLED_TOOLS."""
+    decorator = _mcp_tool_decorator(*args, **kwargs)
+
+    def register(fn):
+        if fn.__name__ in _DISABLED_TOOLS:
+            return fn
+        return decorator(fn)
+
+    return register
+
+
+mcp.tool = _tool
+
+
 # ---------- Yahoo Finance ----------
 
 @mcp.tool(description="Yahoo Finance: latest quote snapshot (last price, prev close, day range, volume, market cap).")

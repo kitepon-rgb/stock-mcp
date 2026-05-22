@@ -1,6 +1,6 @@
 # stock-mcp
 
-Read-only MCP server exposing stock market data and technical analysis as tools.
+MCP server exposing stock market data and technical analysis as tools.
 Designed for the home LAN at `192.168.1.2`, reachable from Claude Code via the
 Streamable HTTP transport.
 
@@ -32,7 +32,15 @@ exposed for direct access.
 ★ `get_stock_history` always tags every record with `interval` and `period`
 so Claude cannot misread the time axis (the design driver of this server).
 
-No order-execution tools are exposed.
+Order-execution tools (Marketspeed2 `ms2_place_*` / `ms2_modify_*` /
+`ms2_cancel_*`) register only when `STOCK_MCP_ENABLE_ORDERS=true` (default: off).
+
+**Deployed exposure:** to keep the MCP client's context lean, the server
+registers only a subset of the tools above at runtime — the rest are skipped
+via the `_DISABLED_TOOLS` set in `server.py`. As currently deployed ~25 tools
+are exposed (real-time quote/history, the local `calc_*` indicators,
+support/resistance, and the `ms2_*` Marketspeed2 tools). Edit `_DISABLED_TOOLS`
+and redeploy to change the set.
 
 ## Layout
 
