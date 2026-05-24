@@ -1,25 +1,25 @@
 # Caddy snippet for stock-mcp.
 #
-# Mirrors the ipmcp.kitepon.dynv6.net block in /home/kite/license-server/Caddyfile.
-# Why a dedicated subdomain (not a path under kitepon.dynv6.net):
-#   the kitepon.dynv6.net root server block in the same Caddyfile has a
+# Mirrors the ipmcp.kitepon.dev block in /home/kite/license-server/Caddyfile.
+# Why a dedicated subdomain (not a path under kitepon.dev):
+#   the kitepon.dev root server block in the same Caddyfile has a
 #   catch-all `reverse_proxy * api:3000`, so path-based MCP routes would be
 #   swallowed by ConnectC2X / license-server. Each MCP gets its own subdomain.
 #
 # Apply:
 #   1. Append this block to /home/kite/license-server/Caddyfile
 #   2. docker exec caddy caddy reload --config /etc/caddy/Caddyfile
-#   3. Verify: curl -I https://stockmcp.kitepon.dynv6.net/.well-known/oauth-authorization-server
+#   3. Verify: curl -I https://stockmcp.kitepon.dev/.well-known/oauth-authorization-server
 #
 # Requires:
-#   - DNS A record for stockmcp.kitepon.dynv6.net pointing to the home IP
+#   - DNS A record for stockmcp.kitepon.dev pointing to the home IP
 #   - Caddy's automatic ACME / Let's Encrypt is already operating for the
 #     other subdomains in this Caddyfile (no extra config needed).
 #   - stock-mcp container running on 192.168.1.2:39200 with OAuth env vars set
 #   - STOCK_MCP_ALLOWED_HOSTS / STOCK_MCP_ALLOWED_ORIGINS include
-#     stockmcp.kitepon.dynv6.net (FastMCP DNS-rebinding guard).
+#     stockmcp.kitepon.dev (FastMCP DNS-rebinding guard).
 
-stockmcp.kitepon.dynv6.net {
+stockmcp.kitepon.dev {
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"

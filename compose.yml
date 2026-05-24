@@ -9,7 +9,7 @@ services:
     env_file: .env
     ports:
       # LAN-reachable on the host IP, same pattern as the other containers.
-      # Caddy reverse-proxies stockmcp.kitepon.dynv6.net here unchanged.
+      # Caddy reverse-proxies stockmcp.kitepon.dev here unchanged.
       - "192.168.1.2:39200:39200"
     volumes:
       # OAuth client/token SQLite store -- persists across rebuilds.
