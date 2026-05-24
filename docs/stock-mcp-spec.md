@@ -1,6 +1,6 @@
 # stock-mcp 実装仕様書
 
-クオ君の自宅サーバー（kitepon.dynv6.net）にデプロイする株価分析 MCP サーバーの仕様書。
+クオ君の自宅サーバー（kitepon.dev）にデプロイする株価分析 MCP サーバーの仕様書。
 Claude（ベル）がチャート画像を誤読する構造問題を解消するため、データそのものを Claude に渡せる MCP として実装する。
 
 ---
@@ -23,8 +23,8 @@ Claude（ベル）がチャート画像を誤読する構造問題を解消す�
 
 | 項目 | 内容 |
 |------|------|
-| ホスト | kitepon.dynv6.net |
-| サブドメイン | stock.kitepon.dynv6.net（推奨）|
+| ホスト | kitepon.dev |
+| サブドメイン | stock.kitepon.dev（推奨）|
 | トランスポート | HTTP / SSE |
 | 認証 | OAuth（既存 MCP と同じ仕組み）|
 | 言語 | Python 3.11+ |
@@ -396,7 +396,7 @@ matplotlib           # ローカルチャート生成（オプション）
 ```
 [claude.ai] 
    ↓ HTTPS/SSE
-[stock.kitepon.dynv6.net]
+[stock.kitepon.dev]
    ↓
 [FastMCP Server]
    ├── Data Layer
@@ -448,12 +448,12 @@ bash scripts/deploy.sh        # rsync + リモートで docker compose up -d --b
 # 3. 環境変数は ~/stock-mcp/.env に設定 (.env.example 参照)
 #    ALPHA_VANTAGE_API_KEY / FINNHUB_API_KEY / KABU_* / MS2_* / MCP_OAUTH_* など
 
-# 4. 公開: Caddy コンテナが stockmcp.kitepon.dynv6.net → 192.168.1.2:39200 を
+# 4. 公開: Caddy コンテナが stockmcp.kitepon.dev → 192.168.1.2:39200 を
 #    reverse_proxy (scripts/caddy-stockmcp.snippet)
 
 # 5. claude.ai / Claude Code に登録
 #    claude mcp add --transport http stock-mcp http://192.168.1.2:39200/mcp
-#    公開接続は https://stockmcp.kitepon.dynv6.net/mcp (OAuth)
+#    公開接続は https://stockmcp.kitepon.dev/mcp (OAuth)
 ```
 
 ---

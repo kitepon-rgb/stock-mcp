@@ -54,7 +54,7 @@ server has to be publicly reachable over HTTPS with OAuth 2.1.
 
 ### One-time server setup
 
-1. **DNS** — point `stockmcp.kitepon.dynv6.net` to the home IP (already done).
+1. **DNS** — point `stockmcp.kitepon.dev` to the home IP (already done).
 2. **Caddy** — append `scripts/caddy-stockmcp.snippet` to
    `/home/kite/license-server/Caddyfile` on `192.168.1.2`, then:
 
@@ -62,15 +62,15 @@ server has to be publicly reachable over HTTPS with OAuth 2.1.
    ssh kite@192.168.1.2 'docker exec caddy caddy reload --config /etc/caddy/Caddyfile'
    ```
 
-   Mirrors the existing `ipmcp.kitepon.dynv6.net` block (same Caddy pattern).
+   Mirrors the existing `ipmcp.kitepon.dev` block (same Caddy pattern).
 3. **stock-mcp env** — on the server, edit `~/stock-mcp/.env`:
 
    ```bash
-   MCP_OAUTH_ISSUER_URL=https://stockmcp.kitepon.dynv6.net
+   MCP_OAUTH_ISSUER_URL=https://stockmcp.kitepon.dev
    MCP_OAUTH_MASTER_PASSWORD=<pick a strong password>
    MCP_OAUTH_DB_PATH=data/oauth.db
-   STOCK_MCP_ALLOWED_HOSTS=192.168.1.2:39200,192.168.1.2,stockmcp.kitepon.dynv6.net
-   STOCK_MCP_ALLOWED_ORIGINS=http://192.168.1.2:39200,https://stockmcp.kitepon.dynv6.net
+   STOCK_MCP_ALLOWED_HOSTS=192.168.1.2:39200,192.168.1.2,stockmcp.kitepon.dev
+   STOCK_MCP_ALLOWED_ORIGINS=http://192.168.1.2:39200,https://stockmcp.kitepon.dev
    ```
 
 4. **Restart**:
@@ -82,7 +82,7 @@ server has to be publicly reachable over HTTPS with OAuth 2.1.
 5. **Smoke test** the OAuth discovery endpoint:
 
    ```bash
-   curl -sS https://stockmcp.kitepon.dynv6.net/.well-known/oauth-authorization-server | jq .
+   curl -sS https://stockmcp.kitepon.dev/.well-known/oauth-authorization-server | jq .
    ```
 
    It should return a JSON document with `issuer`, `authorization_endpoint`, `token_endpoint`, etc.
@@ -90,7 +90,7 @@ server has to be publicly reachable over HTTPS with OAuth 2.1.
 ### Register from claude.ai (web)
 
 1. Settings → Connectors → **Add custom connector**
-2. URL: `https://stockmcp.kitepon.dynv6.net/mcp`
+2. URL: `https://stockmcp.kitepon.dev/mcp`
 3. Claude.ai performs DCR + OAuth redirect → you land on the stock-mcp
    `/consent` page → enter the master password → approved.
 4. The connector turns green and stock-mcp tools become callable from
