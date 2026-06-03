@@ -1,8 +1,40 @@
 # stock-mcp
 
-MCP server exposing stock market data and technical analysis as tools.
-Designed for the home LAN at `192.168.1.2`, reachable from Claude Code via the
-Streamable HTTP transport.
+**An MCP server that gives Claude live stock data, numeric technical analysis, and optional brokerage order execution — so the model reasons over real numbers instead of misreading chart images.**
+
+`stock-mcp` is a self-hosted [Model Context Protocol](https://modelcontextprotocol.io)
+server. It exposes market data (Yahoo Finance, Alpha Vantage, Finnhub, Stooq),
+locally-computed technical indicators (RSI, MACD, Bollinger Bands, ATR,
+support/resistance, Fibonacci, position sizing), and read-only or order-execution
+tools for Japanese brokerages (kabu.com, Rakuten Securities Marketspeed2) as
+callable tools. Every history record is tagged with its `interval` and `period`
+so Claude cannot misread the time axis — the core design driver of the project.
+
+It is built to run as a Docker container on a home/LAN server and connect to
+Claude Code over the Streamable HTTP transport. It also supports OAuth 2.1 for
+use as a Custom Connector from claude.ai.
+
+## Quick start
+
+```bash
+git clone https://github.com/kitepon-rgb/stock-mcp.git
+cd stock-mcp
+cp .env.example .env        # add any API keys you have (all optional to start)
+docker compose up -d --build
+```
+
+Then register it with Claude Code (replace the host with wherever you run it):
+
+```bash
+claude mcp add --transport http stock-mcp http://YOUR_SERVER_IP:39200/mcp
+```
+
+A minimal first call from a Claude session:
+
+> Use stock-mcp's `yahoo_quote` to get the latest quote for NVDA, then `calc_rsi` on its recent history.
+
+Yahoo Finance tools work with no API key. See [Configuration](#configuration) for
+the optional keys that unlock the other data sources.
 
 ## Tools
 
@@ -71,21 +103,22 @@ pyproject.toml
 
 ## Deploy
 
-Runs as a Docker container on the home server (`Dockerfile` + `compose.yml`).
+Runs as a Docker container on any host (`Dockerfile` + `compose.yml`). To deploy
+to a remote server, `scripts/deploy.sh` rsyncs the source and runs
+`docker compose up -d --build` over SSH:
 
 ```bash
-REMOTE=kite@192.168.1.2 bash scripts/deploy.sh
+REMOTE=youruser@YOUR_SERVER_IP bash scripts/deploy.sh
 ```
 
-`deploy.sh` rsyncs the source and runs `docker compose up -d --build` on the
-server. Edit `~/stock-mcp/.env` there to set API keys (`ALPHA_VANTAGE_API_KEY`,
+Edit `~/stock-mcp/.env` on the server to set API keys (`ALPHA_VANTAGE_API_KEY`,
 `FINNHUB_API_KEY`, and if used `KABU_BASE_URL` / `KABU_API_PASSWORD`), then
 `cd ~/stock-mcp && docker compose up -d` to apply.
 
 ## Register with Claude
 
 ```bash
-claude mcp add --transport http stock-mcp http://192.168.1.2:39200/mcp
+claude mcp add --transport http stock-mcp http://YOUR_SERVER_IP:39200/mcp
 ```
 
 See `docs/REGISTER.md` for scope details and verification commands.
@@ -102,3 +135,12 @@ See `docs/REGISTER.md` for scope details and verification commands.
 | `KABU_BASE_URL` | _(unset)_ | e.g. `http://127.0.0.1:18080` |
 | `KABU_API_PASSWORD` | _(unset)_ | kabu Station API password |
 | `KABU_PRODUCTION` | `false` | `true` = live-trading port |
+
+## License
+
+MIT © 2026 kitepon-rgb. See [LICENSE](LICENSE).
+
+> **Disclaimer:** This software is for informational and educational purposes
+> only and is not financial advice. The order-execution tools place real trades
+> when enabled — use them at your own risk. Verify every order before
+> confirming.

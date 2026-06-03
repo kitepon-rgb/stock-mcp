@@ -3,7 +3,7 @@
 ## Quick register (user scope, HTTP transport)
 
 ```bash
-claude mcp add --transport http stock-mcp http://192.168.1.2:39200/mcp
+claude mcp add --transport http stock-mcp http://YOUR_SERVER_IP:39200/mcp
 ```
 
 Verify:
@@ -24,7 +24,7 @@ claude mcp list
 For a personal home server you almost always want **user scope**:
 
 ```bash
-claude mcp add --scope user --transport http stock-mcp http://192.168.1.2:39200/mcp
+claude mcp add --scope user --transport http stock-mcp http://YOUR_SERVER_IP:39200/mcp
 ```
 
 ## Smoke test from Claude
@@ -41,7 +41,7 @@ Then progressively:
 
 ```bash
 claude mcp remove stock-mcp
-claude mcp add --transport http stock-mcp http://192.168.1.2:39200/mcp
+claude mcp add --transport http stock-mcp http://YOUR_SERVER_IP:39200/mcp
 ```
 
 ---
@@ -54,35 +54,35 @@ server has to be publicly reachable over HTTPS with OAuth 2.1.
 
 ### One-time server setup
 
-1. **DNS** — point `stockmcp.kitepon.dev` to the home IP (already done).
+1. **DNS** — point `stock-mcp.example.com` at your server's public IP.
 2. **Caddy** — append `scripts/caddy-stockmcp.snippet` to
-   `/home/kite/license-server/Caddyfile` on `192.168.1.2`, then:
+   `/path/to/Caddyfile` on `YOUR_SERVER_IP`, then:
 
    ```bash
-   ssh kite@192.168.1.2 'docker exec caddy caddy reload --config /etc/caddy/Caddyfile'
+   ssh youruser@YOUR_SERVER_IP 'docker exec caddy caddy reload --config /etc/caddy/Caddyfile'
    ```
 
-   Mirrors the existing `ipmcp.kitepon.dev` block (same Caddy pattern).
+   Mirrors the existing `another-mcp.example.com` block (same Caddy pattern).
 3. **stock-mcp env** — on the server, edit `~/stock-mcp/.env`:
 
    ```bash
-   MCP_OAUTH_ISSUER_URL=https://stockmcp.kitepon.dev
+   MCP_OAUTH_ISSUER_URL=https://stock-mcp.example.com
    MCP_OAUTH_MASTER_PASSWORD=<pick a strong password>
    MCP_OAUTH_DB_PATH=data/oauth.db
-   STOCK_MCP_ALLOWED_HOSTS=192.168.1.2:39200,192.168.1.2,stockmcp.kitepon.dev
-   STOCK_MCP_ALLOWED_ORIGINS=http://192.168.1.2:39200,https://stockmcp.kitepon.dev
+   STOCK_MCP_ALLOWED_HOSTS=YOUR_SERVER_IP:39200,YOUR_SERVER_IP,stock-mcp.example.com
+   STOCK_MCP_ALLOWED_ORIGINS=http://YOUR_SERVER_IP:39200,https://stock-mcp.example.com
    ```
 
 4. **Restart**:
 
    ```bash
-   ssh kite@192.168.1.2 'cd ~/stock-mcp && docker compose up -d'
+   ssh youruser@YOUR_SERVER_IP 'cd ~/stock-mcp && docker compose up -d'
    ```
 
 5. **Smoke test** the OAuth discovery endpoint:
 
    ```bash
-   curl -sS https://stockmcp.kitepon.dev/.well-known/oauth-authorization-server | jq .
+   curl -sS https://stock-mcp.example.com/.well-known/oauth-authorization-server | jq .
    ```
 
    It should return a JSON document with `issuer`, `authorization_endpoint`, `token_endpoint`, etc.
@@ -90,7 +90,7 @@ server has to be publicly reachable over HTTPS with OAuth 2.1.
 ### Register from claude.ai (web)
 
 1. Settings → Connectors → **Add custom connector**
-2. URL: `https://stockmcp.kitepon.dev/mcp`
+2. URL: `https://stock-mcp.example.com/mcp`
 3. Claude.ai performs DCR + OAuth redirect → you land on the stock-mcp
    `/consent` page → enter the master password → approved.
 4. The connector turns green and stock-mcp tools become callable from
