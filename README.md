@@ -1,18 +1,54 @@
 # stock-mcp
 
-**An MCP server that gives Claude live stock data, numeric technical analysis, and optional brokerage order execution — so the model reasons over real numbers instead of misreading chart images.**
+[![license](https://img.shields.io/github/license/kitepon-rgb/stock-mcp?color=blue)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.11%2B-3776ab?logo=python&logoColor=white)](pyproject.toml)
+[![GitHub release](https://img.shields.io/github/v/release/kitepon-rgb/stock-mcp?color=24292e&logo=github)](https://github.com/kitepon-rgb/stock-mcp/releases)
 
-`stock-mcp` is a self-hosted [Model Context Protocol](https://modelcontextprotocol.io)
-server. It exposes market data (Yahoo Finance, Alpha Vantage, Finnhub, Stooq),
+**English** · [日本語](README.ja.md)
+
+> **Give Claude live stock data and numeric technical analysis — so the model reasons over real numbers instead of misreading chart images.**
+> `stock-mcp` is a self-hosted [Model Context Protocol](https://modelcontextprotocol.io) server that exposes market data, locally-computed indicators, and optional brokerage order execution as callable tools.
+
+It serves market data (Yahoo Finance, Alpha Vantage, Finnhub, Stooq),
 locally-computed technical indicators (RSI, MACD, Bollinger Bands, ATR,
 support/resistance, Fibonacci, position sizing), and read-only or order-execution
-tools for Japanese brokerages (kabu.com, Rakuten Securities Marketspeed2) as
-callable tools. Every history record is tagged with its `interval` and `period`
-so Claude cannot misread the time axis — the core design driver of the project.
+tools for Japanese brokerages (kabu.com, Rakuten Securities Marketspeed2). Every
+history record is tagged with its `interval` and `period` so Claude cannot
+misread the time axis — the core design driver of the project.
 
 It is built to run as a Docker container on a home/LAN server and connect to
 Claude Code over the Streamable HTTP transport. It also supports OAuth 2.1 for
 use as a Custom Connector from claude.ai.
+
+```mermaid
+flowchart LR
+    subgraph clients["MCP clients"]
+        CC["Claude Code<br/>(LAN, HTTP)"]
+        CA["claude.ai / desktop / iOS<br/>(Custom Connector, OAuth 2.1)"]
+    end
+
+    subgraph host["Docker host (home / LAN server)"]
+        S["stock-mcp<br/>FastMCP · Streamable HTTP :39200"]
+        IND["Local indicators<br/>(pandas / numpy)"]
+        S --> IND
+    end
+
+    subgraph ext["External data + brokerage"]
+        Y["Yahoo Finance"]
+        AV["Alpha Vantage"]
+        FH["Finnhub"]
+        ST["Stooq"]
+        BR["kabu.com / Marketspeed2<br/>(read-only + guarded orders)"]
+    end
+
+    CC -->|mcp| S
+    CA -->|HTTPS reverse proxy| S
+    S --> Y
+    S --> AV
+    S --> FH
+    S --> ST
+    S --> BR
+```
 
 ## Quick start
 
