@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".github/og.png" alt="stock-mcp — stock data, technical analysis & brokerage orders for Claude (MCP)" width="100%">
+</p>
+
 # stock-mcp
 
 [![license](https://img.shields.io/github/license/kitepon-rgb/stock-mcp?color=blue)](LICENSE)
