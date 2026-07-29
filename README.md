@@ -175,6 +175,13 @@ See `docs/REGISTER.md` for scope details and verification commands.
 | `KABU_BASE_URL` | _(unset)_ | e.g. `http://127.0.0.1:18080` |
 | `KABU_API_PASSWORD` | _(unset)_ | kabu Station API password |
 | `KABU_PRODUCTION` | `false` | `true` = live-trading port |
+| `MS2_BRIDGE_URL` | _(unset)_ | Marketspeed2 bridge base URL; required for `ms2_*` tools |
+| `MS2_BRIDGE_TOKEN` | _(unset)_ | Bearer token shared with the Marketspeed2 bridge |
+| `STOCK_MCP_ENABLE_ORDERS` | `false` | `true` = register Marketspeed2 order preview/confirm tools |
+| `STOCK_MCP_MAX_ORDER_QTY` | `1000` | Per-order quantity guard for Marketspeed2 orders |
+| `STOCK_MCP_MAX_ORDER_NOTIONAL` | `5000000` | Per-order notional guard for Marketspeed2 orders |
+| `STOCK_MCP_CONFIRM_TOKEN_SECRET` | _(random at startup)_ | HMAC secret for order confirm tokens |
+| `STOCK_MCP_CONFIRM_TOKEN_TTL` | `60` | Confirm token TTL in seconds |
 
 ## License
 

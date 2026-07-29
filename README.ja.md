@@ -175,6 +175,13 @@ claude mcp add --transport http stock-mcp http://YOUR_SERVER_IP:39200/mcp
 | `KABU_BASE_URL` | _(未設定)_ | 例: `http://127.0.0.1:18080` |
 | `KABU_API_PASSWORD` | _(未設定)_ | kabu Station API のパスワード |
 | `KABU_PRODUCTION` | `false` | `true` = 本番取引ポート |
+| `MS2_BRIDGE_URL` | _(未設定)_ | Marketspeed2 ブリッジのベース URL。`ms2_*` ツールに必要 |
+| `MS2_BRIDGE_TOKEN` | _(未設定)_ | Marketspeed2 ブリッジと共有する Bearer トークン |
+| `STOCK_MCP_ENABLE_ORDERS` | `false` | `true` = Marketspeed2 発注 preview/confirm ツールを登録 |
+| `STOCK_MCP_MAX_ORDER_QTY` | `1000` | Marketspeed2 発注の1注文あたり数量ガード |
+| `STOCK_MCP_MAX_ORDER_NOTIONAL` | `5000000` | Marketspeed2 発注の1注文あたり想定元本ガード |
+| `STOCK_MCP_CONFIRM_TOKEN_SECRET` | _(起動時にランダム生成)_ | 発注 confirm token の HMAC シークレット |
+| `STOCK_MCP_CONFIRM_TOKEN_TTL` | `60` | confirm token の TTL 秒数 |
 
 ## ライセンス
 
