@@ -4,9 +4,9 @@
 
 # stock-mcp
 
-[![license](https://img.shields.io/github/license/kitepon-rgb/stock-mcp?color=blue)](LICENSE)
+[![license](https://img.shields.io/github/license/kitepon/stock-mcp?color=blue)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.11%2B-3776ab?logo=python&logoColor=white)](pyproject.toml)
-[![GitHub release](https://img.shields.io/github/v/release/kitepon-rgb/stock-mcp?color=24292e&logo=github)](https://github.com/kitepon-rgb/stock-mcp/releases)
+[![GitHub release](https://img.shields.io/github/v/release/kitepon/stock-mcp?color=24292e&logo=github)](https://github.com/kitepon/stock-mcp/releases)
 
 **English** · [日本語](README.ja.md)
 
@@ -57,7 +57,7 @@ flowchart LR
 ## Quick start
 
 ```bash
-git clone https://github.com/kitepon-rgb/stock-mcp.git
+git clone https://github.com/kitepon/stock-mcp.git
 cd stock-mcp
 cp .env.example .env        # add any API keys you have (all optional to start)
 docker compose up -d --build
@@ -185,7 +185,7 @@ See `docs/REGISTER.md` for scope details and verification commands.
 
 ## License
 
-MIT © 2026 kitepon-rgb. See [LICENSE](LICENSE).
+MIT © 2026 kitepon. See [LICENSE](LICENSE).
 
 > **Disclaimer:** This software is for informational and educational purposes
 > only and is not financial advice. The order-execution tools place real trades
